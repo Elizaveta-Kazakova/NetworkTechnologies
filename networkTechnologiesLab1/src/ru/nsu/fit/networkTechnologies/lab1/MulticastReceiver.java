@@ -25,6 +25,7 @@ public class MulticastReceiver extends Thread {
 
     @Override
     public void run() {
+        membersHandler.start();
         try {
             multicastSocket.joinGroup(multiCastAddress);
             while (isAlive) {
@@ -40,6 +41,7 @@ public class MulticastReceiver extends Thread {
     }
 
     public void disconnect() throws IOException {
+        membersHandler.disconnect();
         isAlive = false;
         multicastSocket.leaveGroup(multiCastAddress);
         multicastSocket.close();
