@@ -9,9 +9,9 @@ import java.util.Set;
 public class MembersHandler extends Thread {
     private static final double TIME_OF_DELIVERY = Math.pow(10, 3);
 
-    private Set<InetAddress> liveMembers;
+    private final Set<InetAddress> liveMembers;
     private Set<InetAddress> membersCopy;
-    private Map<InetAddress, Long> timeOfReceived = new HashMap<>();
+    private final Map<InetAddress, Long> timeOfReceived = new HashMap<>();
     private boolean isAlive = true;
 
     private void deleteOldMembers() {
@@ -19,9 +19,7 @@ public class MembersHandler extends Thread {
     }
 
     private void addNewMembers(InetAddress inetAddress) {
-        if (!liveMembers.contains(inetAddress)) {
-            liveMembers.add(inetAddress);
-        }
+        liveMembers.add(inetAddress);
     }
 
     public void updateLiveMembers(InetAddress inetAddress) {
@@ -45,7 +43,10 @@ public class MembersHandler extends Thread {
     @Override
     public void run() {
         while(isAlive) {
-            Set<InetAddress> localLiveMembers = new HashSet<>(liveMembers);
+            Set<InetAddress> localLiveMembers;
+            synchronized (liveMembers) {
+                localLiveMembers = new HashSet<>(liveMembers);
+            }
             if (!membersCopy.equals(localLiveMembers)) {
                 System.out.println("list of members was changed : " + localLiveMembers);
                 membersCopy = new HashSet<>(localLiveMembers);
