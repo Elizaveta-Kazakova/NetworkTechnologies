@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.util.List;
 
 public class MulticastReceiver extends Thread {
     private static final int PORT = 8080;
@@ -17,15 +16,14 @@ public class MulticastReceiver extends Thread {
     private MulticastSocket multicastSocket;
     private boolean isAlive = true;
 
-    public MulticastReceiver(String multiCastAddress, List<InetAddress> liveMembers) throws IOException {
+    public MulticastReceiver(String multiCastAddress, MembersHandler membersHandler) throws IOException {
         multicastSocket = new MulticastSocket(PORT);
         this.multiCastAddress = InetAddress.getByName(multiCastAddress);
-        membersHandler = new MembersHandler(liveMembers);
+        this.membersHandler = membersHandler;
     }
 
     @Override
     public void run() {
-        membersHandler.start();
         try {
             multicastSocket.joinGroup(multiCastAddress);
             while (isAlive) {
@@ -41,7 +39,6 @@ public class MulticastReceiver extends Thread {
     }
 
     public void disconnect() throws IOException {
-        membersHandler.disconnect();
         isAlive = false;
         multicastSocket.leaveGroup(multiCastAddress);
         multicastSocket.close();
