@@ -11,9 +11,9 @@ public class MulticastReceiver extends Thread {
 
     private final InetAddress multiCastAddress;
 
-    private MembersHandler membersHandler;
-    private byte[] receiveBuffer = new byte[BUF_SIZE];
-    private MulticastSocket multicastSocket;
+    private final MembersHandler membersHandler;
+    private final byte[] receiveBuffer = new byte[BUF_SIZE];
+    private final MulticastSocket multicastSocket;
     private boolean isAlive = true;
 
     public MulticastReceiver(String multiCastAddress, MembersHandler membersHandler) throws IOException {

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.net.NetworkInterface;
 
 public class MulticastSender extends Thread {
     private static final int PORT = 8080;
@@ -21,6 +22,7 @@ public class MulticastSender extends Thread {
     @Override
     public void run() {
         try {
+            //NetworkInterface networkInterface = new NetworkInterface()
             multicastSocket.joinGroup(multiCastAddress);
             while (isAlive) {
                 DatagramPacket sendingPacket = new DatagramPacket(DEFAULT_MESSAGE.getBytes(),
