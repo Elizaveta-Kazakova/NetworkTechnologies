@@ -15,6 +15,10 @@ public class MulticastSender extends Thread {
     private final InetSocketAddress multicastSocketAddress;
     private boolean isAlive = true;
 
+    public static int getPort() {
+        return PORT;
+    }
+
     public MulticastSender(String multiCastAddress) throws IOException {
         multicastSocket = new MulticastSocket();
         this.multiCastAddress = InetAddress.getByName(multiCastAddress);

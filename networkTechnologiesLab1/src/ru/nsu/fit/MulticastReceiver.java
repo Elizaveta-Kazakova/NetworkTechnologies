@@ -34,7 +34,7 @@ public class MulticastReceiver extends Thread {
                 multicastSocket.receive(receivedPacket);
                 // handling package
                 InetAddress inetAddress = receivedPacket.getAddress();
-                membersHandler.updateLiveMembers(inetAddress);
+                membersHandler.updateLiveMembers(inetAddress, receivedPacket.getPort());
             }
         } catch (IOException e) {
             e.printStackTrace();

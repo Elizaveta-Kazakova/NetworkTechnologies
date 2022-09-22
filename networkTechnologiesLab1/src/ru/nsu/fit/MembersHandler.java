@@ -1,55 +1,67 @@
 package ru.nsu.fit;
 
 import java.net.InetAddress;
+import java.sql.SQLOutput;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MembersHandler extends Thread {
     private static final double TIME_OF_DELIVERY = Math.pow(10, 3);
 
-    private final Set<InetAddress> liveMembers;
-    private Set<InetAddress> membersCopy;
+    private final Map<InetAddress, Integer> liveMembers;
+    private Map<InetAddress, Integer> membersCopy;
     private final Map<InetAddress, Long> timeOfReceived = new HashMap<>();
     private boolean isAlive = true;
 
     private void deleteOldMembers() {
-        liveMembers.removeIf(member -> (System.currentTimeMillis() - timeOfReceived.get(member)) > TIME_OF_DELIVERY);
-    }
-
-    private void addNewMembers(InetAddress inetAddress) {
-        liveMembers.add(inetAddress);
-    }
-
-    public void updateLiveMembers(InetAddress inetAddress) {
-        timeOfReceived.put(inetAddress, System.currentTimeMillis());
-        deleteOldMembers();
-        addNewMembers(inetAddress);
-    }
-
-    private void initTimeReceived() {
-        for (InetAddress member : liveMembers) {
-            timeOfReceived.put(member, System.currentTimeMillis());
+        for (Map.Entry<InetAddress, Integer> entry : liveMembers.entrySet()) {
+            if ( System.currentTimeMillis() - timeOfReceived.get(entry.getKey())  > TIME_OF_DELIVERY) {
+                liveMembers.remove(entry.getKey());
+            }
         }
     }
 
-    public MembersHandler(Set<InetAddress> liveMembers) {
+    private void addNewMembers(InetAddress inetAddress, int port) {
+        liveMembers.put(inetAddress, port);
+    }
+
+    private void printAllMembers() {
+        for (Map.Entry<InetAddress, Integer> entry : liveMembers.entrySet()) {
+            System.out.println("ip = " + entry.getKey() + " port = " + entry.getValue() );
+        }
+    }
+
+    public void updateLiveMembers(InetAddress inetAddress, int port) {
+        timeOfReceived.put(inetAddress, System.currentTimeMillis());
+        deleteOldMembers();
+        addNewMembers(inetAddress, port);
+    }
+
+    private void initTimeReceived() {
+        for (Map.Entry<InetAddress, Integer> entry : liveMembers.entrySet()) {
+            timeOfReceived.put(entry.getKey(), System.currentTimeMillis());
+        }
+    }
+
+    public MembersHandler(Map<InetAddress, Integer> liveMembers) {
         this.liveMembers = liveMembers;
-        membersCopy = new HashSet<>(liveMembers);
+        membersCopy = new ConcurrentHashMap<>(liveMembers);
         initTimeReceived();
     }
 
     @Override
     public void run() {
         while(isAlive) {
-            Set<InetAddress> localLiveMembers;
+            Map<InetAddress, Integer> localLiveMembers;
             synchronized (liveMembers) {
-                localLiveMembers = new HashSet<>(liveMembers);
+                localLiveMembers = new ConcurrentHashMap<>(liveMembers);
             }
             if (!membersCopy.equals(localLiveMembers)) {
-                System.out.println("list of members was changed : " + localLiveMembers);
-                membersCopy = new HashSet<>(localLiveMembers);
+                printAllMembers();
+                membersCopy = new ConcurrentHashMap<>(localLiveMembers);
             }
         }
     }

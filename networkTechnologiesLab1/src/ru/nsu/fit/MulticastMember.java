@@ -3,7 +3,9 @@ package ru.nsu.fit;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MulticastMember {
     private final MulticastSender multicastSender;
@@ -11,7 +13,7 @@ public class MulticastMember {
     private final MembersHandler membersHandler;
 
     public MulticastMember(String multiCastAddress) throws IOException {
-        Set<InetAddress> liveMembers = new HashSet<>();
+        Map<InetAddress, Integer> liveMembers = new ConcurrentHashMap();
         multicastSender = new MulticastSender(multiCastAddress);
         membersHandler = new MembersHandler(liveMembers);
         multicastReceiver = new MulticastReceiver(multiCastAddress, membersHandler);
