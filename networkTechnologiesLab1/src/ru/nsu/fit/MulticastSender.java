@@ -1,29 +1,30 @@
-package ru.nsu.fit.networkTechnologies.lab1;
+package ru.nsu.fit;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
-import java.net.NetworkInterface;
 
 public class MulticastSender extends Thread {
     private static final int PORT = 8080;
     private static final String DEFAULT_MESSAGE = "hello";
 
-    private MulticastSocket multicastSocket;
-    private InetAddress multiCastAddress;
+    private final MulticastSocket multicastSocket;
+    private final InetAddress multiCastAddress;
+    private final InetSocketAddress multicastSocketAddress;
     private boolean isAlive = true;
 
     public MulticastSender(String multiCastAddress) throws IOException {
         multicastSocket = new MulticastSocket();
         this.multiCastAddress = InetAddress.getByName(multiCastAddress);
+        multicastSocketAddress = new InetSocketAddress(multiCastAddress, PORT);
     }
 
     @Override
     public void run() {
         try {
-            //NetworkInterface networkInterface = new NetworkInterface()
-            multicastSocket.joinGroup(multiCastAddress);
+            multicastSocket.joinGroup(multicastSocketAddress, null);
             while (isAlive) {
                 DatagramPacket sendingPacket = new DatagramPacket(DEFAULT_MESSAGE.getBytes(),
                         DEFAULT_MESSAGE.length(), multiCastAddress, PORT);
@@ -36,7 +37,7 @@ public class MulticastSender extends Thread {
 
     public void disconnect() throws IOException {
         isAlive = false;
-        multicastSocket.leaveGroup(multiCastAddress);
+        multicastSocket.leaveGroup(multicastSocketAddress, null);
         multicastSocket.close();
     }
 }

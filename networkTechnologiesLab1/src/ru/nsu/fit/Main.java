@@ -1,4 +1,4 @@
-package ru.nsu.fit.networkTechnologies.lab1;
+package ru.nsu.fit;
 
 import java.io.BufferedReader;
 import java.io.IOException;
